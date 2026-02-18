@@ -1,0 +1,537 @@
+Eval Notes:
+
+A real engine, in JavaScript with:
+
+clean modules
+
+bitboards
+
+perfect movegen
+
+scalable eval
+
+professional search
+
+no UI entanglement
+
+no garbage
+
+no rewrites later
+
+1. Lock the high‑level architecture
+No UCI, no Node, no external libs. Just this:
+
+/engine/
+
+core/bitboards.js – low‑level bit ops, masks, attacks
+
+core/position.js – bitboards + game state
+
+core/movegen.js – pseudo‑legal move generation
+
+core/make.js / core/unmake.js – apply/revert moves
+
+core/zobrist.js – hashing
+
+search/search.js – alpha‑beta, qsearch, LMR, null move, etc.
+
+search/tt.js – transposition table
+
+eval/eval.js – classical eval (material, PST, mobility, king safety…)
+
+eval/nnue.js – NNUE hooks (later)
+
+engine.js – the public API wrapper
+
+/web/
+
+index.html
+
+styles.css
+
+ui.js – board, controls, wiring to engine.js
+
+worker.js – optional: run engine in a Web Worker
+
+Engine is a pure JS library that just happens to run in the browser.
+
+2. Define the engine API first
+This is the “contract” everything else must satisfy:
+
+js
+// engine/engine.js
+export function createEngine() {
+  const state = initInternalState(); // position, tt, search, etc.
+
+  return {
+    setPosition(fen) { /* ... */ },
+    makeMove(uciMove) { /* ... */ },
+    go(options) { /* depth, time, nodes */ },
+    stop() { /* ... */ },
+    getBestMove() { /* ... */ },
+    getInfo() { /* score, pv, nodes, depth */ }
+  };
+}
+We don’t implement it yet—we just freeze this shape.
+Everything else plugs into this.
+
+3. Build order (no “learning”, just doing)
+This is the only sane order for what you want:
+
+bitboards.js
+
+square indexing
+
+masks (files, ranks, diagonals)
+
+precomputed attacks for knight/king/pawns
+
+helpers: popcount, lsb, bitScan
+
+position.js
+
+12 piece bitboards
+
+bbWhite, bbBlack, bbOccupied
+
+side to move, castling, ep, halfmove, fullmove
+
+FEN → position, position → FEN
+
+movegen.js
+
+pseudo‑legal moves using bitboards
+
+per piece type, no legality yet
+
+make.js / unmake.js
+
+update bitboards + state + zobrist
+
+zobrist.js + tt.js
+
+hashing + TT entries
+
+search.js
+
+alpha‑beta + qsearch
+
+then add: TT, move ordering, LMR, null move, etc.
+
+eval.js
+
+start simple: material + PST + mobility
+
+keep it modular so NNUE can replace/augment later
+
+nnue.js (later)
+
+load weights (static file)
+
+feature extraction from bitboards
+
+forward pass
+
+Wire it all into engine.js (the API above).
+
+What we keep from this
+1. Make/unmake live with Position
+
+Yes. For a pro engine:
+
+position.js = bitboards + state + makeMove() + unmakeMove()
+
+No separate make.js/unmake.js files.
+
+You want:
+
+direct access to arrays/bitboards
+
+no circular deps
+
+no extra call layers in the hot path
+
+We adopt that.
+
+2. No garbage: TypedArrays + packed moves
+
+Also yes. In JS, GC is the real enemy.
+
+So:
+
+bitboards: BigUint64Array or plain BigInt values
+
+TT: BigUint64Array/Uint32Array backing store
+
+moves: single integer, not { from, to, ... } objects
+
+We adopt that too.
+
+3. Magic bitboards, move ordering, search stack, perft
+
+All of these are mandatory for “best of the best”:
+
+magic bitboards for sliders
+
+move ordering: PV, captures (MVV-LVA), killers, history
+
+search stack: preallocated per ply
+
+perft right after make/unmake to prove correctness
+
+All of that fits your goal.
+
+4. UCI wrapper
+
+You still don’t need it for your browser goal.
+You might want it later for testing vs other engines—but that’s optional and can be bolted on after the core exists.
+
+We ignore UCI for now.
+
+Updated architecture (with these refinements)
+/engine/core/
+
+bitboards.js – masks, attacks, magic, helpers
+
+position.js – bitboards, state, make/unmake, isSquareAttacked
+
+movegen.js – pseudo-legal moves, uses packed move ints
+
+perft.js – perft driver using position + movegen
+
+/engine/search/
+
+search.js – alpha-beta, qsearch, stack-based
+
+tt.js – typed-array TT
+
+ordering.js – PV, MVV-LVA, killers, history
+
+stack.js – preallocated search stack per ply
+
+/engine/eval/
+
+eval.js – classical eval
+
+nnue.js – later
+
+/engine/engine.js
+
+public API (browser-facing), async go(options, onInfo) style
+
+Next concrete step: define move encoding
+You want “no garbage” from day one, so we lock the move format now.
+
+Example 32-bit layout:
+
+bits 0–5: from square (0–63)
+
+bits 6–11: to square (0–63)
+
+bits 12–15: piece type
+
+bits 16–19: captured piece type
+
+bits 20–23: promotion piece type
+
+bits 24–27: flags (castle, en passant, promo, etc.)
+
+bits 28–31: unused / future
+
+Then helpers:
+
+js
+const FROM_SHIFT = 0;
+const TO_SHIFT = 6;
+const PIECE_SHIFT = 12;
+const CAPTURE_SHIFT = 16;
+const PROMO_SHIFT = 20;
+const FLAGS_SHIFT = 24;
+
+function makeMove(from, to, piece, captured, promo, flags) {
+  return  (from     << FROM_SHIFT)
+        | (to       << TO_SHIFT)
+        | (piece    << PIECE_SHIFT)
+        | (captured << CAPTURE_SHIFT)
+        | (promo    << PROMO_SHIFT)
+        | (flags    << FLAGS_SHIFT);
+}
+
+function moveFrom(m)   { return  (m >>> FROM_SHIFT) & 0x3F; }
+function moveTo(m)     { return  (m >>> TO_SHIFT) & 0x3F; }
+function movePiece(m)  { return  (m >>> PIECE_SHIFT) & 0x0F; }
+// etc.
+If you’re good with this encoding, next step is:
+
+lock square indexing (0–63 mapping)
+
+then we write bitboards.js with that in mind.
+
+3...1. Final directory layout
+text
+/engine
+  engine.js              ← public API (browser-facing)
+
+  /core
+    constants.js         ← enums: pieces, colors, flags, squares
+    bitboards.js         ← masks, attacks, magic, helpers
+    position.js          ← bitboards + state + make/unmake + isSquareAttacked
+    movegen.js           ← pseudo-legal moves (returns packed ints)
+    perft.js             ← perft driver (for correctness)
+
+  /search
+    search.js            ← alpha-beta, qsearch, LMR, null, etc.
+    tt.js                ← typed-array TT
+    ordering.js          ← PV, MVV-LVA, killers, history
+    stack.js             ← preallocated search stack per ply
+
+  /eval
+    eval.js              ← classical eval (material, PST, mobility, king safety…)
+    nnue.js              ← NNUE hooks (later)
+text
+/web
+  index.html
+  styles.css
+  ui.js                  ← board, controls, wiring to engine.js
+  worker.js              ← optional: run engine in Web Worker
+No other folders. No extra files. If we add something later, it must fit under these three engine subtrees: core/, search/, eval/.
+
+2. Lock the engine API (async, browser-safe)
+js
+// engine/engine.js
+import { createPosition } from './core/position.js';
+import { createSearch }   from './search/search.js';
+
+export function createEngine() {
+  const pos    = createPosition();
+  const search = createSearch(pos);
+
+  return {
+    setPosition(fen) { pos.fromFEN(fen); },
+
+    makeMove(uciMove) { // or internal format later
+      // parse UCI string → packed move → pos.makeMove(move)
+    },
+
+    go(options, onInfo) {
+      // options: { depth?, movetime?, nodes? }
+      // onInfo:  (info) => { depth, score, nodes, pv }
+      return search.go(options, onInfo); // returns Promise<{ bestMove, score }>
+    },
+
+    stop() {
+      search.stop();
+    },
+
+    getBestMove() {
+      return search.getBestMove(); // last result
+    },
+
+    getInfo() {
+      return search.getInfo(); // last search info
+    }
+  };
+}
+We don’t change this shape later. Internals can evolve; this contract doesn’t.
+
+3. Lock move encoding + constants location
+All move encoding + enums live in core/constants.js so every module shares them.
+
+js
+// engine/core/constants.js
+export const COLOR_WHITE = 0;
+export const COLOR_BLACK = 1;
+
+export const PIECE_NONE  = 0;
+export const PIECE_PAWN  = 1;
+export const PIECE_KNIGHT= 2;
+export const PIECE_BISHOP= 3;
+export const PIECE_ROOK  = 4;
+export const PIECE_QUEEN = 5;
+export const PIECE_KING  = 6;
+
+// flags
+export const FLAG_NONE      = 0;
+export const FLAG_PROMO     = 1;
+export const FLAG_ENPASSANT = 2;
+export const FLAG_CASTLE    = 3;
+// (we can expand within 4 bits later)
+
+// move layout
+export const FROM_SHIFT    = 0;
+export const TO_SHIFT      = 6;
+export const PIECE_SHIFT   = 12;
+export const CAPTURE_SHIFT = 16;
+export const PROMO_SHIFT   = 20;
+export const FLAGS_SHIFT   = 24;
+
+export function makeMove(from, to, piece, captured, promo, flags) {
+  return  (from     << FROM_SHIFT)
+        | (to       << TO_SHIFT)
+        | (piece    << PIECE_SHIFT)
+        | (captured << CAPTURE_SHIFT)
+        | (promo    << PROMO_SHIFT)
+        | (flags    << FLAGS_SHIFT);
+}
+
+export function moveFrom(m)    { return (m >>> FROM_SHIFT)    & 0x3F; }
+export function moveTo(m)      { return (m >>> TO_SHIFT)      & 0x3F; }
+export function movePiece(m)   { return (m >>> PIECE_SHIFT)   & 0x0F; }
+export function moveCapture(m) { return (m >>> CAPTURE_SHIFT) & 0x0F; }
+export function movePromo(m)   { return (m >>> PROMO_SHIFT)   & 0x0F; }
+export function moveFlags(m)   { return (m >>> FLAGS_SHIFT)   & 0x0F; }
+This gives every file the same language for moves.
+
+4. Next structural lock: square indexing
+Before bitboards.js, we must freeze how we number squares (0–63). That also belongs in constants.js.
+
+Standard (and easiest):
+
+A1 = 0, B1 = 1, …, H1 = 7
+
+A2 = 8, …, H8 = 63
+
+If you’re okay with that, we add:
+
+js
+// engine/core/constants.js (continued)
+export const A1 = 0;  export const B1 = 1;  // ...
+// up to H8 = 63
+
+export function square(file, rank) {
+  // file: 0..7 (a..h), rank: 0..7 (1..8)
+  return rank * 8 + file;
+} 
+
+final file structure..../engine
+  engine.js
+
+  /core
+    constants.js
+    bitboards.js
+    position.js
+    movegen.js
+    perft.js
+
+  /search
+    search.js
+    tt.js
+    ordering.js
+    stack.js
+
+  /eval
+    eval.js
+    nnue.js
+
+/web
+  index.html
+  styles.css
+  ui.js
+  worker.js
+
+4....Gemini said
+Yes. This is the Final Lock. It is clean, modular, and mirrors the architecture of world-class engines like Stockfish (C++) or ethereal (C), but tailored for the JavaScript runtime.
+
+By separating /core, /search, and /eval, you ensure that a bug in your move generation doesn't stay hidden in your search logic. More importantly, this structure allows you to swap out your eval.js for nnue.js later without touching a single line of your tree-traversal code.
+
+Why this specific layout wins:
+core/ is the "Source of Truth": It doesn't know about the search or the evaluation. It only knows the rules of chess and the math of bitboards. This makes it 100% testable via perft.js.
+
+search/ is the "Brain": By pulling ordering.js and tt.js into their own files, you avoid a 3,000-line "search god-file." You can tune your move ordering (the most important part of search speed) in isolation.
+
+worker.js is the "Enabler": In a professional JS engine, the search must live here. If you run a depth-20 search on the main thread, the browser will think the tab has crashed. The worker keeps the UI at a buttery 60fps while the engine grinds in the background.
+
+A Note on stack.js
+Since you are aiming for "no garbage," stack.js should not export a class you instantiate. Instead, it should export a TypedArray-backed pool.
+
+When the search starts, it "resets" a pointer to 0. As it goes deeper (ply 1, ply 2...), it just reads/writes to the next offset in that pre-allocated buffer. No objects created, no objects destroyed, zero work for the Garbage Collector.
+
+The "Golden Rule" for Implementation
+As you start coding these files, follow this one rule to ensure no rewrites:
+
+Core files never import from Search or Eval.
+Search files never import from Eval (except to call the score function).
+
+This "downward-only" dependency chain is what makes an engine stable.
+
+What's the first move?
+Your architecture is locked. Your indexing is locked. Your API is locked.
+
+Would you like me to generate the initialization code for core/bitboards.js, specifically the pre-computed arrays for SQUARE_BB and the non-sliding attack masks (Knights and Kings)?
+
+
+Gemini said
+This is 95% of the way to a masterpiece. Your move encoding is clean, your indexing is standard, and the file structure is disciplined.
+
+However, if you want "best of the best," there is one logic collision in your Flags that will cause a nightmare in your movegen.js and make.js later.
+
+1. The Flag Collision (Crucial Fix)
+Look at your bit-logic for flags:
+
+FLAG_CAPTURE = 4 (binary 0100)
+
+FLAG_PROMO = 8 (binary 1000)
+
+FLAG_PROMO_Q = 12 (binary 1100)
+
+Because 12 is just 8 + 4, your engine will think every Queen promotion is also a capture, even if it’s into an empty square.
+
+The Professional Fix: Use a system where you can check isCapture or isPromotion by looking at a single bit, but the specific promotion types occupy the "lower" bits of the flag.
+
+JavaScript
+// A cleaner "branchless" flag set:
+export const FLAG_QUIET      = 0;
+export const FLAG_DOUBLE_PAWN = 1;
+export const FLAG_KING_CASTLE = 2;
+export const FLAG_QUEEN_CASTLE= 3;
+
+export const FLAG_CAPTURE     = 4; // Bit 2: Is Capture
+export const FLAG_EP_CAPTURE  = 5;
+
+export const FLAG_PROMO       = 8; // Bit 3: Is Promotion
+// Bits 0-1 tell us which piece (aligned with your PIECE constants)
+export const FLAG_PROMO_N     = 8;  // 1000
+export const FLAG_PROMO_B     = 9;  // 1001
+export const FLAG_PROMO_R     = 10; // 1010
+export const FLAG_PROMO_Q     = 11; // 1011
+
+// Promo + Capture (Bit 3 AND Bit 2 are set)
+export const FLAG_PROMO_CAP_N = 12; // 1100
+export const FLAG_PROMO_CAP_B = 13; // 1101
+export const FLAG_PROMO_CAP_R = 14; // 1110
+export const FLAG_PROMO_CAP_Q = 15; // 1111
+Why this is better: if (flags & 4) is now a 100% reliable "Is this a capture?" check. if (flags & 8) is a 100% reliable "Is this a promotion?" check.
+
+2. Missing "Professional" Constants
+To finish constants.js so you never have to touch it again, you need these three things:
+
+A. Castling Rights (4-bit bitmask)
+You need to track who can castle where.
+
+JavaScript
+export const CASTLE_WK = 1; // 0001
+export const CASTLE_WQ = 2; // 0010
+export const CASTLE_BK = 4; // 0100
+export const CASTLE_BQ = 8; // 1000
+B. Max Search Depth
+
+JavaScript
+export const MAX_PLY = 64; 
+C. Square Bitboards (The Performance King)
+As we discussed, converting numbers to BigInts in a loop is slow. Add this to the bottom of your file so it's pre-calculated once at startup:
+
+JavaScript
+export const SQUARE_BB = new BigUint64Array(64);
+for (let i = 0; i < 64; i++) {
+  SQUARE_BB[i] = 1n << BigInt(i);
+}
+3. Final Verification of your makeMove logic
+The layout you chose:
+0–5 (from) | 6–11 (to) | 12–15 (piece) | 16–19 (captured) | 20–23 (promo) | 24–27 (flags)
+
+This is excellent because it fits within a 32-bit signed integer (JS standard bitwise limit is 32-bit). If you went any higher, you'd be forced to use BigInt for moves, which would actually slow down the search.
+
+Summary: Is it finished?
+Almost. Fix the Flag overlap (the binary 12 vs 8+4 issue) and add the Castling/SQUARE_BB constants. Once that is done, your constants.js is truly "Locked."
+
+Would you like me to show you the bitboards.js logic for generating Pawn and Knight attack masks using this new LERF indexing?

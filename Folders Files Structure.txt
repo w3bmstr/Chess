@@ -1,0 +1,148 @@
+/chess2
+│
+├── /engine
+│   │
+│   ├── engine.js
+│   │
+│   ├── /core
+│   │   ├── constants.js
+│   │   ├── bitboards.js
+│   │   ├── magic.js
+│   │   ├── position.js
+│   │   ├── movegen.js
+│   │   ├── zobrist.js
+│   │   ├── fen.js
+│   │   ├── validation.js
+│   │   └── perft.js
+│   │
+│   ├── /search
+│   │   ├── search.js
+│   │   ├── quiescence.js
+│   │   ├── ordering.js
+│   │   ├── pruning.js
+│   │   ├── time.js
+│   │   ├── stack.js
+│   │   └── multipv.js              # ✔ Multi-PV support
+│   │
+│   ├── /eval
+│   │   ├── eval.js
+│   │   ├── pst.js
+│   │   ├── king_safety.js
+│   │   ├── pawns.js
+│   │   ├── mobility.js             # ✔ Added
+│   │   ├── threats.js              # ✔ Added
+│   │   └── nnue.js                 # ✔ NNUE
+│   │
+│   ├── /tt
+│   │   ├── tt.js
+│   │   └── tt_entry.js
+│   │
+│   ├── /endgame
+│   │   ├── syzygy.js
+│   │   └── heuristics.js
+│   │
+│   ├── /book                       # ✔ Opening book subsystem
+│   │   ├── polyglot.js
+│   │   └── book.js
+│   │
+│   ├── /uci                        # ✔ UCI protocol support
+│   │   ├── uci.js
+│   │   └── uci_commands.js
+│   │
+│   └── /debug                      # ✔ Logging + profiling
+│       ├── logger.js
+│       └── profiler.js
+│
+│
+├── /ui
+│   ├── index.html
+│   ├── styles.css
+│   ├── main.js
+│   │
+│   ├── /components
+│   │   ├── board.js
+│   │   ├── move_list.js
+│   │   ├── eval_bar.js
+│   │   ├── controls.js
+│   │   ├── nav.js
+│   │   ├── settings.js
+│   │   └── modal.js
+│   │
+│   ├── /views
+│   │   ├── home.js
+│   │   ├── play.js
+│   │   ├── analysis.js
+│   │   ├── openings.js
+│   │   ├── puzzles.js
+│   │   ├── training.js
+│   │   ├── multiplayer.js
+│   │   └── settings.js
+│   │
+│   ├── /utils                      # ✔ UI helpers
+│   │   ├── format.js
+│   │   └── keyboard.js
+│   │
+│   └── /workers
+│       └── engine_worker.js
+│
+│
+├── /app
+│   ├── router.js
+│   ├── state.js
+│   ├── commands.js
+│   ├── notation.js                 # ✔ PGN/FEN/SAN/LAN lives here
+│   ├── storage.js
+│   ├── events.js
+│   │
+│   └── /network                    # ✔ Multiplayer networking
+│       ├── websocket.js
+│       ├── protocol.js
+│       └── matchmaking.js
+│
+│
+├── /data
+│   ├── /books
+│   ├── /puzzles
+│   └── /assets
+│
+│
+├── /modules
+│   ├── /variants
+│   └── /training
+│
+│
+├── /tests
+│   ├── perft.test.js
+│   ├── movegen.test.js
+│   ├── search.test.js
+│   ├── eval.test.js
+│   ├── ui.test.js
+│   │
+│   ├── /integration
+│   │   └── engine_ui.test.js
+│   │
+│   └── /performance
+│       ├── bench_search.js
+│       └── bench_eval.js
+│
+│
+├── /docs
+│   ├── FEATURES.md
+│   ├── API.md
+│   ├── FILE_STRUCTURE.md
+│   ├── DECISIONS.md
+│   ├── DCR_TEMPLATE.md
+│   ├── ROADMAP.md
+│   ├── ARCHITECTURE.md
+│   ├── PERFORMANCE.md
+│   └── CONTRIBUTING.md
+│
+│
+├── /config
+│   ├── build.config.js
+│   ├── env.json
+│   └── paths.json
+│
+│
+└── /build
+    └── chess2.bundle.js

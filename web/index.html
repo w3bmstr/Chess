@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitboardJS Engine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- TOP NAV BAR -->
+    <header id="top-nav">
+        <button id="menu-button">☰</button>
+        <div id="logo">BitboardJS Engine</div>
+        <button id="settings-button">⚙</button>
+    </header>
+
+    <!-- SIDE DRAWER NAV -->
+    <nav id="side-drawer">
+        <div class="drawer-header">Menu</div>
+        <ul>
+
+            <li data-view="home">🏠 Home</li>
+
+            <!-- PLAY -->
+            <li class="submenu">▶ Play
+                <ul>
+                    <li data-view="play">vs Engine</li>
+                    <li data-view="play-e2e">Engine vs Engine</li>
+                    <li data-view="play-human">Human vs Human</li>
+                </ul>
+            </li>
+
+            <!-- GAME OPTIONS (merged from Game Modes + Board Theme) -->
+            <li class="submenu">⚙ Game Options
+                <ul>
+                    <li data-view="time-controls">Time Controls</li>
+                    <li data-view="increment">Increment / Delay</li>
+                    <li data-view="handicap">Handicap Modes</li>
+                    <li id="nav-change-theme">Board Theme</li>
+                </ul>
+            </li>
+
+            <!-- ANALYSIS -->
+            <li class="submenu">🔍 Analysis
+                <ul>
+                    <li data-view="analysis">Analysis Board</li>
+                    <li data-view="eval">Evaluation Bar</li>
+                    <li data-view="pv">PV Display</li>
+                    <li data-view="search-stats">Search Stats</li>
+                    <li data-view="threat-mode">Threat Mode</li>
+                    <li data-view="hint-mode">Hint Mode</li>
+                    <li data-view="logs">Search Logs</li>
+                </ul>
+            </li>
+
+            <!-- OPENINGS -->
+            <li class="submenu">📖 Openings
+                <ul>
+                    <li data-view="openings">Opening Explorer</li>
+                    <li data-view="eco">ECO Codes</li>
+                    <li data-view="book">Polyglot Book</li>
+                    <li data-view="stats">Win/Draw/Loss Stats</li>
+                </ul>
+            </li>
+
+            <!-- TRAINING -->
+            <li class="submenu">🎯 Training
+                <ul>
+                    <li data-view="tactics">Tactics Trainer</li>
+                    <li data-view="endgame-trainer">Endgame Trainer</li>
+                    <li data-view="guess-move">Guess the Move</li>
+                    <li data-view="blindfold">Blindfold Mode</li>
+                    <li data-view="visualization">Visualization Drills</li>
+                    <li data-view="knight-vision">Knight Vision</li>
+                    <li data-view="memory">Memory Mode</li>
+                </ul>
+            </li>
+
+            <!-- PUZZLES -->
+            <li class="submenu">🧩 Puzzles
+                <ul>
+                    <li data-view="daily-puzzle">Daily Puzzle</li>
+                    <li data-view="puzzle-rush">Puzzle Rush</li>
+                    <li data-view="puzzle-battle">Puzzle Battle</li>
+                    <li data-view="thematic-puzzles">Thematic Puzzles</li>
+                    <li data-view="puzzle-import">Import Puzzle Database</li>
+                </ul>
+            </li>
+
+            <!-- VARIANTS -->
+            <li class="submenu">♟ Variants
+                <ul>
+                    <li data-view="chess960">Chess960</li>
+                    <li data-view="king-hill">King of the Hill</li>
+                    <li data-view="three-check">Three‑Check</li>
+                    <li data-view="horde">Horde</li>
+                    <li data-view="atomic">Atomic</li>
+                    <li data-view="crazyhouse">Crazyhouse</li>
+                    <li data-view="bughouse">Bughouse</li>
+                    <li data-view="capablanca">Capablanca / Gothic</li>
+                    <li data-view="custom-variants">Custom Variants</li>
+                </ul>
+            </li>
+
+            <!-- MULTIPLAYER -->
+            <li class="submenu">🌐 Multiplayer
+                <ul>
+                    <li data-view="live">Live Games</li>
+                    <li data-view="matchmaking">Matchmaking</li>
+                    <li data-view="spectate">Spectate</li>
+                    <li data-view="chat">Chat</li>
+                    <li data-view="leaderboards">Leaderboards</li>
+                    <li data-view="tournaments">Tournaments</li>
+                    <li data-view="clubs">Clubs / Teams</li>
+                </ul>
+            </li>
+
+            <!-- LOAD / SAVE -->
+            <li class="submenu">💾 Load / Save
+                <ul>
+                    <li data-view="pgn-import">Import PGN</li>
+                    <li data-view="pgn-export">Export PGN</li>
+                    <li data-view="fen-load">Load FEN</li>
+                    <li data-view="fen-save">Save FEN</li>
+                    <li data-view="epd">EPD Support</li>
+                </ul>
+            </li>
+
+            <!-- TOOLS -->
+            <li class="submenu">🛠 Tools
+                <ul>
+                    <li data-view="perft">Perft Runner</li>
+                    <li data-view="move-inspector">Move Inspector</li>
+                    <li data-view="zobrist-viewer">Zobrist Viewer</li>
+                    <li data-view="tt-inspector">TT Inspector</li>
+                    <li data-view="search-tree">Search Tree Visualizer</li>
+                    <li data-view="logging-console">Logging Console</li>
+                    <li data-view="benchmark">Benchmark</li>
+                    <li data-view="stress-test">Stress Test</li>
+                </ul>
+            </li>
+
+            <li data-view="settings">⚙ Settings</li>
+            <li data-view="about">ℹ About</li>
+
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main id="content">
+
+        <section id="view-home" class="view active">
+            <h1>BitboardJS Engine</h1>
+            <p>Modern JavaScript chess engine with BigInt bitboards, magic movegen, and zero-GC search.</p>
+            <button id="start-playing">Play Now</button>
+        </section>
+
+        <section id="view-play" class="view">
+            <div id="board-area">
+                <div id="chessboard" class="theme-classic"></div>
+            </div>
+        </section>
+
+        <section id="view-analysis" class="view"></section>
+        <section id="view-openings" class="view"></section>
+        <section id="view-loadsave" class="view"></section>
+        <section id="view-settings" class="view"></section>
+        <section id="view-about" class="view"></section>
+
+    </main>
+
+    <script src="ui.js"></script>
+    <script src="engine/engine.js"></script>
+
+</body>
+</html>
