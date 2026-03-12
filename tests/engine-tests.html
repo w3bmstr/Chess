@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess2 Engine And Logic Checks</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            margin: 24px;
+            line-height: 1.5;
+            background: #f7f4ec;
+            color: #1f1f1f;
+        }
+
+        main {
+            max-width: 860px;
+        }
+
+        code {
+            background: #ece7dc;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Chess2 Engine And Logic Checks</h1>
+        <p>This page runs the full browser suite: fast smoke coverage plus the slower mate and published-divide regressions.</p>
+        <p><a href="engine-smoke.html">Open fast smoke suite</a> | <a href="engine-deep.html">Open deep regression suite</a></p>
+        <div id="results">Running engine and logic checks...</div>
+    </main>
+
+    <script src="../engine/core/fen.js"></script>
+    <script src="../engine/core/magic.js"></script>
+    <script src="../engine/core/bitboards.js"></script>
+    <script src="../engine/core/position.js"></script>
+    <script src="../engine/core/movegen.js"></script>
+    <script src="../engine/core/zobrist.js"></script>
+    <script src="../engine/search/tt.js"></script>
+    <script src="../engine/search/ordering.js"></script>
+    <script src="../engine/search/stack.js"></script>
+    <script src="../engine/eval/pst.js"></script>
+    <script src="../engine/eval/pawns.js"></script>
+    <script src="../engine/eval/mobility.js"></script>
+    <script src="../engine/eval/king_safety.js"></script>
+    <script src="../engine/eval/threats.js"></script>
+    <script src="../engine/eval/nnue.js"></script>
+    <script src="../engine/eval/eval.js"></script>
+    <script src="../engine/search/search.js"></script>
+    <script src="../engine/engine.js"></script>
+    <script src="../engine/core/perft.js"></script>
+    <script src="../app/events.js"></script>
+    <script src="../app/notation.js"></script>
+    <script src="../data/books/eco_encyclopedia_data.js?v=20260309e"></script>
+    <script src="../data/books/eco_reference_titles.js?v=20260309c"></script>
+    <script src="../data/books/opening_explorer_book_data.js?v=20260309b"></script>
+    <script src="../app/openings.js?v=20260309b"></script>
+    <script src="../app/state.js"></script>
+    <script src="../ui.js"></script>
+    <script src="engine_test_harness.js"></script>
+    <script src="eco_reference_data.js"></script>
+    <script src="bitboards.test.js"></script>
+    <script src="hash_tt.test.js"></script>
+    <script src="movegen.test.js"></script>
+    <script src="perft.test.js"></script>
+    <script src="perft.deep.test.js"></script>
+    <script src="eval.test.js"></script>
+    <script src="search.test.js"></script>
+    <script src="search.heuristics.test.js"></script>
+    <script src="search.deep.test.js"></script>
+    <script src="notation.test.js"></script>
+    <script src="ui.test.js"></script>
+    <script src="integration/engine_ui.test.js"></script>
+    <script>
+        window.addEventListener('load', function () {
+            window.Chess2TestHarness.runAll(document.getElementById('results'));
+        });
+    </script>
+</body>
+</html>

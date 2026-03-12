@@ -99,25 +99,40 @@ export function moveFlags(m)   { return (m >>> FLAGS_SHIFT)   & 0x0F; }
 // bit 2 (4): capture
 // bit 3 (8): promotion
 
-export const FLAG_QUIET          = 0;  // normal move
-export const FLAG_DOUBLE_PAWN    = 1;  // double pawn push
-export const FLAG_KING_CASTLE    = 2;
-export const FLAG_QUEEN_CASTLE   = 3;
+export const FLAG_QUIET           = 0;
+export const FLAG_DOUBLE_PAWN     = 1;
+export const FLAG_KING_CASTLE     = 2;
+export const FLAG_QUEEN_CASTLE    = 3;
+export const FLAG_CAPTURE         = 4;
+export const FLAG_EP_CAPTURE      = 5;
 
-export const FLAG_CAPTURE        = 4;  // capture
-export const FLAG_EP_CAPTURE     = 5;  // en passant capture
+export const FLAG_PROMO           = 8;
+export const FLAG_PROMO_N         = 8;
+export const FLAG_PROMO_B         = 9;
+export const FLAG_PROMO_R         = 10;
+export const FLAG_PROMO_Q         = 11;
 
-// 8–11: promotions (quiet)
-export const FLAG_PROMO          = 8;  // base promo flag (quiet)
-export const FLAG_PROMO_N        = 9;
-export const FLAG_PROMO_B        = 10;
-export const FLAG_PROMO_R        = 11;
-export const FLAG_PROMO_Q        = 12; // you can shift these if you prefer
+export const FLAG_PROMO_CAPTURE_N = 12;
+export const FLAG_PROMO_CAPTURE_B = 13;
+export const FLAG_PROMO_CAPTURE_R = 14;
+export const FLAG_PROMO_CAPTURE_Q = 15;
 
-// 12–15: capture + promotion variants (example mapping)
-export const FLAG_PROMO_CAPTURE_N = 13;
-export const FLAG_PROMO_CAPTURE_B = 14;
-export const FLAG_PROMO_CAPTURE_R = 15;
-// (you can extend/adjust promo/capture combos as needed)
+export const CASTLE_WK = 1;
+export const CASTLE_WQ = 2;
+export const CASTLE_BK = 4;
+export const CASTLE_BQ = 8;
 
-// ...existing code...
+export const MAX_PLY = 64;
+
+export const SQUARE_BB = new BigUint64Array(64);
+for (let i = 0; i < 64; i++) {
+  SQUARE_BB[i] = 1n << BigInt(i);
+}
+
+export function isCaptureFlag(flags) {
+  return (flags & FLAG_CAPTURE) !== 0;
+}
+
+export function isPromotionFlag(flags) {
+  return (flags & FLAG_PROMO) !== 0;
+}

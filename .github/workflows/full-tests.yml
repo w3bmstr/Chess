@@ -1,0 +1,43 @@
+name: Full Browser Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  browser-full:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install test dependencies
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Start local static server
+        run: python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/chess2-http.log 2>&1 &
+
+      - name: Run full browser suite
+        env:
+          CHESS2_ARTIFACT_DIR: artifacts/full
+          CHESS2_TEST_NAME: Full Browser Suite
+          CHESS2_TEST_PATH: /tests/engine-tests.html
+          CHESS2_TEST_TIMEOUT_MS: 300000
+        run: npm run test:full
+
+      - name: Upload full-suite artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chess2-full-failure-artifacts
+          path: |
+            /tmp/chess2-http.log
+            artifacts/full

@@ -2,19 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>BitboardJS Engine</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
-<body>
+<body class="theme-classic">  
 
     <!-- TOP NAV BAR -->
     <header id="top-nav">
-        <button id="menu-button">☰</button>
+        <button id="menu-button" aria-label="Open menu">☰</button>
         <div id="logo">BitboardJS Engine</div>
-        <button id="settings-button">⚙</button>
+        <button id="settings-button" aria-label="Settings">⚙</button>
     </header>
+
+    <!-- OVERLAY — tap outside drawer to close it -->
+    <div id="drawer-overlay"></div>
 
     <!-- SIDE DRAWER NAV -->
     <nav id="side-drawer">
@@ -24,7 +28,8 @@
             <li data-view="home">🏠 Home</li>
 
             <!-- PLAY -->
-            <li class="submenu">▶ Play
+            <li class="submenu">
+                <span class="submenu-label">▶ Play</span>
                 <ul>
                     <li data-view="play">vs Engine</li>
                     <li data-view="play-e2e">Engine vs Engine</li>
@@ -32,18 +37,38 @@
                 </ul>
             </li>
 
-            <!-- GAME OPTIONS (merged from Game Modes + Board Theme) -->
-            <li class="submenu">⚙ Game Options
+            <!-- GAME OPTIONS -->
+            <li class="submenu">
+                <span class="submenu-label">⚙ Game Options</span>
                 <ul>
                     <li data-view="time-controls">Time Controls</li>
                     <li data-view="increment">Increment / Delay</li>
                     <li data-view="handicap">Handicap Modes</li>
-                    <li id="nav-change-theme">Board Theme</li>
+                </ul>
+            </li>
+
+            <!-- THEMES — directly in nav, no modal -->
+            <li class="submenu" id="themes-submenu">
+                <span class="submenu-label">🎨 Board Theme</span>
+                <ul>
+                    <li data-theme="theme-classic">Classic</li>
+                    <li data-theme="theme-classic-low">Classic (Low Contrast)</li>
+                    <li data-theme="theme-blue">Ocean Blue</li>
+                    <li data-theme="theme-blue-low">Ocean Blue (Low Contrast)</li>
+                    <li data-theme="theme-green">Forest Green</li>
+                    <li data-theme="theme-green-low">Forest Green (Low Contrast)</li>
+                    <li data-theme="theme-wood">Warm Wood</li>
+                    <li data-theme="theme-wood-low">Warm Wood (Low Contrast)</li>
+                    <li data-theme="theme-night">Midnight</li>
+                    <li data-theme="theme-night-low">Midnight (Low Contrast)</li>
+                    <li data-theme="theme-purple">Royal Purple</li>
+                    <li data-theme="theme-purple-low">Royal Purple (Low Contrast)</li>
                 </ul>
             </li>
 
             <!-- ANALYSIS -->
-            <li class="submenu">🔍 Analysis
+            <li class="submenu">
+                <span class="submenu-label">🔍 Analysis</span>
                 <ul>
                     <li data-view="analysis">Analysis Board</li>
                     <li data-view="eval">Evaluation Bar</li>
@@ -56,7 +81,8 @@
             </li>
 
             <!-- OPENINGS -->
-            <li class="submenu">📖 Openings
+            <li class="submenu">
+                <span class="submenu-label">📖 Openings</span>
                 <ul>
                     <li data-view="openings">Opening Explorer</li>
                     <li data-view="eco">ECO Codes</li>
@@ -66,7 +92,8 @@
             </li>
 
             <!-- TRAINING -->
-            <li class="submenu">🎯 Training
+            <li class="submenu">
+                <span class="submenu-label">🎯 Training</span>
                 <ul>
                     <li data-view="tactics">Tactics Trainer</li>
                     <li data-view="endgame-trainer">Endgame Trainer</li>
@@ -79,7 +106,8 @@
             </li>
 
             <!-- PUZZLES -->
-            <li class="submenu">🧩 Puzzles
+            <li class="submenu">
+                <span class="submenu-label">🧩 Puzzles</span>
                 <ul>
                     <li data-view="daily-puzzle">Daily Puzzle</li>
                     <li data-view="puzzle-rush">Puzzle Rush</li>
@@ -90,7 +118,8 @@
             </li>
 
             <!-- VARIANTS -->
-            <li class="submenu">♟ Variants
+            <li class="submenu">
+                <span class="submenu-label">♟ Variants</span>
                 <ul>
                     <li data-view="chess960">Chess960</li>
                     <li data-view="king-hill">King of the Hill</li>
@@ -105,7 +134,8 @@
             </li>
 
             <!-- MULTIPLAYER -->
-            <li class="submenu">🌐 Multiplayer
+            <li class="submenu">
+                <span class="submenu-label">🌐 Multiplayer</span>
                 <ul>
                     <li data-view="live">Live Games</li>
                     <li data-view="matchmaking">Matchmaking</li>
@@ -118,7 +148,8 @@
             </li>
 
             <!-- LOAD / SAVE -->
-            <li class="submenu">💾 Load / Save
+            <li class="submenu">
+                <span class="submenu-label">💾 Load / Save</span>
                 <ul>
                     <li data-view="pgn-import">Import PGN</li>
                     <li data-view="pgn-export">Export PGN</li>
@@ -129,7 +160,8 @@
             </li>
 
             <!-- TOOLS -->
-            <li class="submenu">🛠 Tools
+            <li class="submenu">
+                <span class="submenu-label">🛠 Tools</span>
                 <ul>
                     <li data-view="perft">Perft Runner</li>
                     <li data-view="move-inspector">Move Inspector</li>
@@ -139,6 +171,14 @@
                     <li data-view="logging-console">Logging Console</li>
                     <li data-view="benchmark">Benchmark</li>
                     <li data-view="stress-test">Stress Test</li>
+                    <li data-view="tests">Test Launcher</li>
+                    <li data-url="tests/index.html">Open Browser Test Hub</li>
+                    <li data-url="tests/engine-smoke.html">Open Smoke Suite</li>
+                    <li data-url="tests/engine-deep.html">Open Deep Suite</li>
+                    <li data-url="tests/engine-tests.html">Open Full Suite</li>
+                    <li data-url="engine-harness.html">Open Engine Harness</li>
+                    <li data-url="tests/scanKQK.html">Open KQK Scan</li>
+                    <li data-url="tests/scanSimpleMates.html">Open Mate Scan</li>
                 </ul>
             </li>
 
@@ -147,7 +187,6 @@
 
         </ul>
     </nav>
-
     <!-- MAIN CONTENT AREA -->
     <main id="content">
 
@@ -157,22 +196,182 @@
             <button id="start-playing">Play Now</button>
         </section>
 
-        <section id="view-play" class="view">
+ <section id="view-play" class="view">
+    <div class="play-layout">
+        <div class="play-main">
+            <div id="board-controls-bar">
+                <button id="btn-toggle-3d" class="board-ctrl-btn active" title="Toggle 3D view">3D</button>
+                <button id="btn-flip-board" class="board-ctrl-btn" title="Flip board">Flip</button>
+                <button id="btn-reset-view" class="board-ctrl-btn" title="Reset camera">Reset View</button>
+            </div>
+            <div id="play-status" class="play-status" aria-live="polite">White to move</div>
             <div id="board-area">
-                <div id="chessboard" class="theme-classic"></div>
+                <div id="board-wrapper">
+                    <div id="board-3d-container"></div>
+                    <div id="chessboard" style="display:none;"></div>
+                </div>
+            </div>
+            <div id="play-controls" class="play-controls"></div>
+        </div>
+        <aside id="play-sidebar" class="play-sidebar" aria-label="Play sidebar">
+            <section class="play-panel">
+                <h3 class="play-panel-title">Moves</h3>
+                <div id="move-list" class="move-list"></div>
+            </section>
+            <section class="play-panel">
+                <h3 class="play-panel-title">Opening</h3>
+                <div id="play-opening" class="engine-summary"></div>
+            </section>
+            <section class="play-panel">
+                <h3 class="play-panel-title">Engine</h3>
+                <div id="engine-summary" class="engine-summary"></div>
+            </section>
+            <section class="play-panel">
+                <h3 class="play-panel-title">Clock</h3>
+                <div id="play-clock" class="engine-summary"></div>
+            </section>
+            <section class="play-panel">
+                <h3 class="play-panel-title">Online</h3>
+                <div id="play-online" class="engine-summary"></div>
+            </section>
+            <section class="play-panel">
+                <h3 class="play-panel-title">Thinking</h3>
+                <div id="play-thinking" class="engine-summary"></div>
+            </section>
+            <section class="play-panel">
+                <h3 class="play-panel-title">Position</h3>
+                <div id="play-meta" class="engine-summary"></div>
+            </section>
+        </aside>
+    </div>
+</section>
+
+
+        <!-- FEN LOADER VIEW -->
+        <section id="view-fen-load" class="view">
+            <div class="fen-loader-wrap">
+                <h2 class="fen-view-title">Load FEN Position</h2>
+                <p class="fen-view-subtitle">Paste any FEN string to set up a position, or pick a preset below.</p>
+
+                <div class="fen-input-group">
+                    <textarea id="fen-input" class="fen-textarea"
+                        placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                        rows="2" spellcheck="false" autocomplete="off"></textarea>
+                    <div class="fen-btn-row">
+                        <button id="fen-load-btn" class="fen-btn fen-btn-primary">♟ Load Position</button>
+                        <button id="fen-clear-btn" class="fen-btn fen-btn-secondary">✕ Clear</button>
+                    </div>
+                    <div id="fen-status" class="fen-status idle"></div>
+                </div>
+
+                <div class="fen-current-panel panel">
+                    <div class="fen-current-header">
+                        <span class="fen-current-label">📌 Current Board FEN</span>
+                        <button id="fen-copy-btn" class="fen-btn fen-btn-ghost">📋 Copy</button>
+                    </div>
+                    <div id="fen-current-display" class="fen-current-display">—</div>
+                </div>
+
+                <div class="fen-presets-section">
+                    <h3 class="fen-presets-title">📚 Preset Positions</h3>
+                    <div id="fen-presets-grid" class="fen-presets-grid"></div>
+                </div>
             </div>
         </section>
 
         <section id="view-analysis" class="view"></section>
+        <section id="view-multiplayer" class="view"></section>
+        <section id="view-training" class="view"></section>
+        <section id="view-puzzles" class="view"></section>
+        <section id="view-variants" class="view"></section>
+        <section id="view-tools" class="view"></section>
         <section id="view-openings" class="view"></section>
         <section id="view-loadsave" class="view"></section>
         <section id="view-settings" class="view"></section>
         <section id="view-about" class="view"></section>
-
     </main>
-
-    <script src="ui.js"></script>
+    <script src="engine/core/magic.js"></script>
+    <script src="engine/core/bitboards.js"></script>
+    <script src="engine/core/position.js"></script>
+    <script src="engine/core/movegen.js"></script>
+    <script src="engine/core/perft.js"></script>
+    <script src="engine/core/zobrist.js"></script>
+    <script src="engine/search/tt.js"></script>
+    <script src="engine/search/ordering.js"></script>
+    <script src="engine/search/stack.js"></script>
+    <script src="engine/eval/pst.js"></script>
+    <script src="engine/eval/pawns.js"></script>
+    <script src="engine/eval/mobility.js"></script>
+    <script src="engine/eval/king_safety.js"></script>
+    <script src="engine/eval/threats.js"></script>
+    <script src="engine/eval/nnue.js"></script>
+    <script src="engine/eval/eval.js"></script>
+    <script src="engine/search/search.js"></script>
     <script src="engine/engine.js"></script>
+    <script src="app/events.js"></script>
+    <script src="config/runtime-config.js"></script>
+    <script src="app/network/protocol.js"></script>
+    <script src="app/network/websocket.js"></script>
+    <script src="app/network/matchmaking.js"></script>
+    <script src="app/notation.js"></script>
+    <script src="data/books/eco_reference_titles.js?v=20260309c"></script>
+    <script src="data/books/opening_explorer_book_data.js?v=20260311b"></script>
+    <script src="data/books/opening_explorer_wdl_data.js?v=20260311b"></script>
+    <script src="app/openings.js?v=20260311b"></script>
+    <script src="app/state.js"></script>
+    <script src="app/storage.js"></script>
 
+<script src="ui/components/board.js"></script>
+    <script src="ui/components/move_list.js"></script>
+    <script src="ui/components/controls.js"></script>
+<script src="ui/components/board3d.js"></script>
+    <script src="ui/components/modal.js"></script>
+    <script src="ui/components/eval_bar.js"></script>
+    <script src="ui/views/play.js"></script>
+    <script src="ui/views/analysis.js"></script>
+    <script src="ui/views/tools.js"></script>
+    <script src="ui/views/loadsave.js"></script>
+    <script src="ui/views/openings.js?v=20260311b"></script>
+<script src="ui/workers/engine_worker.js"></script>
+<script src="ui.js?v=20260310b"></script>
+    <script>
+    (function () {
+        let loadPromise = null;
+
+        function announceReady() {
+            window.dispatchEvent(new Event('chess2:eco-encyclopedia-ready'));
+        }
+
+        function loadEcoEncyclopediaDeferred() {
+            if (Array.isArray(window.Chess2EcoEncyclopediaData) && window.Chess2EcoEncyclopediaData.length) {
+                announceReady();
+                return Promise.resolve(window.Chess2EcoEncyclopediaData);
+            }
+
+            if (loadPromise) return loadPromise;
+
+            loadPromise = new Promise(function (resolve, reject) {
+                const script = document.createElement('script');
+                script.src = 'data/books/eco_encyclopedia_data.js?v=20260309e';
+                script.async = true;
+                script.onload = function () {
+                    announceReady();
+                    resolve(window.Chess2EcoEncyclopediaData || []);
+                };
+                script.onerror = function () {
+                    loadPromise = null;
+                    console.error('index.html: failed to load deferred ECO encyclopedia data.');
+                    reject(new Error('Failed to load ECO encyclopedia data.'));
+                };
+                document.body.appendChild(script);
+            });
+
+            return loadPromise;
+        }
+
+        window.Chess2LoadEcoEncyclopedia = loadEcoEncyclopediaDeferred;
+    })();
+    </script>
+<script src="engine/core/fen.js"></script>
 </body>
 </html>

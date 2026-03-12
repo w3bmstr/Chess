@@ -22,29 +22,4 @@ no garbage
 
 no rewrites later
 
-final file structure..../engine
-  engine.js
-
-  /core
-    constants.js
-    bitboards.js
-    position.js
-    movegen.js
-    perft.js
-
-  /search
-    search.js
-    tt.js
-    ordering.js
-    stack.js
-
-  /eval
-    eval.js
-    nnue.js
-
-/web
-  index.html
-  styles.css
-  ui.js
-  worker.js
 

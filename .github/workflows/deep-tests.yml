@@ -1,0 +1,45 @@
+name: Deep Regression Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs:
+  browser-deep:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install test dependencies
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Start local static server
+        run: python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/chess2-http.log 2>&1 &
+
+      - name: Run deep browser suite
+        env:
+          CHESS2_ARTIFACT_DIR: artifacts/deep
+          CHESS2_TEST_NAME: Deep Regression Suite
+          CHESS2_TEST_PATH: /tests/engine-deep.html
+          CHESS2_TEST_TIMEOUT_MS: 240000
+        run: npm run test:deep
+
+      - name: Upload deep artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chess2-deep-failure-artifacts
+          path: |
+            /tmp/chess2-http.log
+            artifacts/deep

@@ -1,0 +1,23 @@
+{
+  "name": "chess2-browser-tests",
+  "private": true,
+  "scripts": {
+    "openings:validate": "node scripts/validate-eco-encyclopedia.mjs",
+    "openings:validate:strict": "node scripts/validate-eco-encyclopedia.mjs --strict",
+    "openings:merge": "node scripts/merge-eco-library.mjs",
+    "openings:merge:validate": "node scripts/merge-eco-library.mjs --validate",
+    "test:smoke": "node scripts/run-smoke-suite.mjs",
+    "test:variants-ui": "node scripts/run-variant-ui-regression.mjs",
+    "test:deep": "node scripts/run-smoke-suite.mjs",
+    "test:full": "node scripts/run-smoke-suite.mjs",
+    "serve": "node server/server.js",
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.52.0"
+  }
+}

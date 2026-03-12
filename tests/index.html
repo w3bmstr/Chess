@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess2 Browser Test Hub</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f4efe4;
+            --panel: #fffaf0;
+            --ink: #1f1a14;
+            --muted: #65594a;
+            --accent: #1d5c4a;
+            --accent-2: #8b5e34;
+            --line: #dccfb9;
+            --ok: #0b6b2d;
+            --bad: #8a1c1c;
+            --shadow: 0 10px 30px rgba(31, 26, 20, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            background:
+                radial-gradient(circle at top left, rgba(139, 94, 52, 0.18), transparent 26%),
+                radial-gradient(circle at bottom right, rgba(29, 92, 74, 0.16), transparent 24%),
+                var(--bg);
+            color: var(--ink);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 5vw, 3.4rem);
+            line-height: 1;
+        }
+
+        p.lead {
+            margin: 0 0 24px;
+            max-width: 760px;
+            font-size: 1.05rem;
+            color: var(--muted);
+        }
+
+        .toolbar,
+        .layout {
+            display: grid;
+            gap: 16px;
+        }
+
+        .toolbar {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-bottom: 16px;
+        }
+
+        .layout {
+            grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .runner-button {
+            display: block;
+            width: 100%;
+            border: 1px solid var(--line);
+            background: #fffdf7;
+            color: var(--ink);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+            font: inherit;
+        }
+
+        .runner-button:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+
+        .runner-button.active {
+            background: #f2fbf8;
+            border-color: var(--accent);
+        }
+
+        .runner-button h2 {
+            margin: 0 0 8px;
+            font-size: 1.15rem;
+        }
+
+        .runner-button p {
+            margin: 0;
+            color: var(--muted);
+            min-height: 56px;
+        }
+
+        .status-line {
+            margin: 0 0 14px;
+            font-size: 0.98rem;
+            color: var(--muted);
+        }
+
+        .summary-chip {
+            display: inline-block;
+            margin: 0 8px 8px 0;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #f0e7d8;
+            color: var(--ink);
+            font-size: 0.92rem;
+        }
+
+        .summary-chip.pass { background: rgba(11, 107, 45, 0.14); color: var(--ok); }
+        .summary-chip.fail { background: rgba(138, 28, 28, 0.12); color: var(--bad); }
+
+        .result-list {
+            margin: 12px 0 0;
+            padding-left: 20px;
+            max-height: 420px;
+            overflow: auto;
+        }
+
+        .result-list li + li { margin-top: 8px; }
+        .result-list .pass { color: var(--ok); }
+        .result-list .fail { color: var(--bad); }
+
+        .frame-shell {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .frame-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255,255,255,0.55);
+        }
+
+        .frame-topbar a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        iframe {
+            width: 100%;
+            min-height: 900px;
+            border: 0;
+            background: white;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            iframe {
+                min-height: 720px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Chess2 Browser Test Hub</h1>
+        <p class="lead">Use this page as the browser-first entry point for testing. Pick a suite on the left, and it runs inside this same window. Smoke is the everyday fast suite, deep isolates slower search and divide regressions, full combines both, and the harness stays manual for diagnostics.</p>
+
+        <section class="toolbar" id="suite-buttons">
+            <button class="runner-button" data-suite="smoke" data-title="Smoke Suite" data-src="engine-smoke.html">
+                <h2>Smoke Suite</h2>
+                <p>Fast engine, controller, notation, UI, and integration checks for routine development.</p>
+            </button>
+            <button class="runner-button" data-suite="deep" data-title="Deep Suite" data-src="engine-deep.html">
+                <h2>Deep Suite</h2>
+                <p>Slower mate-depth and published divide regressions for engine-heavy changes.</p>
+            </button>
+            <button class="runner-button" data-suite="full" data-title="Full Suite" data-src="engine-tests.html">
+                <h2>Full Suite</h2>
+                <p>Combined browser validation when you want one complete pass across smoke and deep checks.</p>
+            </button>
+            <button class="runner-button" data-suite="harness" data-title="Manual Harness" data-src="../engine-harness.html">
+                <h2>Manual Harness</h2>
+                <p>Diagnostics surface for engine inspection and reference comparisons outside the automated suites.</p>
+            </button>
+        </section>
+
+        <section class="layout">
+            <aside class="panel">
+                <p class="status-line" id="hub-status">Select a suite to run it in this window.</p>
+                <div id="summary-chips"></div>
+                <ol class="result-list" id="result-list"></ol>
+                <section class="notes" style="margin-top:16px;">
+                    <h2>Recommended Local Flow</h2>
+                    <ol>
+                        <li>Start with Smoke while changing controller, notation, or UI logic.</li>
+                        <li>Run Deep after touching move generation, search, evaluation, or perft logic.</li>
+                        <li>Run Full before calling the browser test pass complete.</li>
+                    </ol>
+                </section>
+            </aside>
+
+            <section class="panel frame-shell">
+                <div class="frame-topbar">
+                    <strong id="frame-title">No Suite Selected</strong>
+                    <a id="frame-open-link" href="engine-smoke.html" target="_blank" rel="noopener noreferrer">Open In New Tab</a>
+                </div>
+                <iframe id="suite-frame" title="Chess2 Browser Test Runner"></iframe>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            const suiteButtons = Array.from(document.querySelectorAll('[data-suite]'));
+            const frame = document.getElementById('suite-frame');
+            const frameTitle = document.getElementById('frame-title');
+            const frameOpenLink = document.getElementById('frame-open-link');
+            const hubStatus = document.getElementById('hub-status');
+            const summaryChips = document.getElementById('summary-chips');
+            const resultList = document.getElementById('result-list');
+
+            function renderIdleMessage(message) {
+                hubStatus.textContent = message;
+                summaryChips.innerHTML = '';
+                resultList.innerHTML = '';
+            }
+
+            function renderResults(detail) {
+                const results = Array.isArray(detail && detail.results) ? detail.results : [];
+                const passed = detail && typeof detail.passed === 'number' ? detail.passed : results.filter(result => result.status === 'pass').length;
+                const failed = detail && typeof detail.failed === 'number' ? detail.failed : results.filter(result => result.status === 'fail').length;
+
+                hubStatus.textContent = 'Suite completed in this window.';
+                summaryChips.innerHTML = [
+                    '<span class="summary-chip">Total: ' + results.length + '</span>',
+                    '<span class="summary-chip pass">Passed: ' + passed + '</span>',
+                    '<span class="summary-chip fail">Failed: ' + failed + '</span>'
+                ].join('');
+
+                resultList.innerHTML = '';
+                results.forEach(result => {
+                    const item = document.createElement('li');
+                    item.className = result.status === 'pass' ? 'pass' : 'fail';
+                    item.textContent = '[' + String(result.status || '').toUpperCase() + '] ' + result.name + (result.message ? ' - ' + result.message : '');
+                    resultList.appendChild(item);
+                });
+            }
+
+            function activateSuite(button) {
+                suiteButtons.forEach(entry => entry.classList.toggle('active', entry === button));
+                const title = button.dataset.title || 'Suite';
+                const src = button.dataset.src;
+                frameTitle.textContent = title;
+                frameOpenLink.href = src;
+                hubStatus.textContent = title === 'Manual Harness'
+                    ? 'Manual harness loaded. Use the embedded controls inside the frame.'
+                    : 'Running ' + title.toLowerCase() + ' in this window...';
+                summaryChips.innerHTML = '';
+                resultList.innerHTML = '';
+                frame.src = src;
+                history.replaceState(null, '', '?suite=' + encodeURIComponent(button.dataset.suite));
+            }
+
+            suiteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    activateSuite(button);
+                });
+            });
+
+            window.addEventListener('message', function (event) {
+                if (!event || !event.data || event.data.type !== 'chess2-tests-complete') return;
+                renderResults(event.data.detail || {});
+            });
+
+            const requestedSuite = new URLSearchParams(window.location.search).get('suite') || 'smoke';
+            const initialButton = suiteButtons.find(button => button.dataset.suite === requestedSuite) || suiteButtons[0];
+            if (initialButton) {
+                activateSuite(initialButton);
+            } else {
+                renderIdleMessage('Select a suite to run it in this window.');
+            }
+        })();
+    </script>
+</body>
+</html>

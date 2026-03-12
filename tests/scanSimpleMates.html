@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>done</title>
+</head>
+<body>
+    <pre id="output">[
+  {
+    "fen": "5rk1/5ppp/8/8/8/8/1B6/K5R1 w - - 0 1",
+    "white": {
+      "king": "a1",
+      "rook": "g1",
+      "bishop": "b2"
+    },
+    "bestMove": "g1g7",
+    "bestScore": 31991,
+    "mateDistance": 5,
+    "pv": [
+      "g1g7",
+      "g8h8",
+      "g7f7",
+      "h8g8",
+      "f7g7",
+      "g8h8",
+      "g7g1",
+      "f8f6",
+      "b2f6"
+    ],
+    "elapsedMs": 212
+  },
+  {
+    "fen": "5rk1/5ppp/8/8/8/8/1B6/1K4R1 w - - 0 1",
+    "white": {
+      "king": "b1",
+      "rook": "g1",
+      "bishop": "b2"
+    },
+    "bestMove": "g1g7",
+    "bestScore": 31991,
+    "mateDistance": 5,
+    "pv": [
+      "g1g7",
+      "g8h8",
+      "g7f7",
+      "h8g8",
+      "f7g7",
+      "g8h8",
+      "g7g4",
+      "f8f6",
+      "b2f6"
+    ],
+    "elapsedMs": 85
+  },
+  {
+    "fen": "5rk1/5ppp/8/8/8/8/1B4R1/K7 w - - 0 1",
+    "white": {
+      "king": "a1",
+      "rook": "g2",
+      "bishop": "b2"
+    },
+    "bestMove": "g2g7",
+    "bestScore": 31991,
+    "mateDistance": 5,
+    "pv": [
+      "g2g7",
+      "g8h8",
+      "g7f7",
+      "h8g8",
+      "f7g7",
+      "g8h8",
+      "g7g1",
+      "f8f6",
+      "b2f6"
+    ],
+    "elapsedMs": 108
+  },
+  {
+    "fen": "5rk1/5ppp/8/8/8/8/1B4R1/1K6 w - - 0 1",
+    "white": {
+      "king": "b1",
+      "rook": "g2",
+      "bishop": "b2"
+    },
+    "bestMove": "g2g7",
+    "bestScore": 31991,
+    "mateDistance": 5,
+    "pv": [
+      "g2g7",
+      "g8h8",
+      "g7f7",
+      "h8g8",
+      "f7g7",
+      "g8h8",
+      "g7g4",
+      "f8f6",
+      "b2f6"
+    ],
+    "elapsedMs": 92
+  }
+]</pre>
+
+    <script src="../engine/core/fen.js"></script>
+    <script src="../engine/core/magic.js"></script>
+    <script src="../engine/core/bitboards.js"></script>
+    <script src="../engine/core/position.js"></script>
+    <script src="../engine/core/movegen.js"></script>
+    <script src="../engine/core/zobrist.js"></script>
+    <script src="../engine/search/tt.js"></script>
+    <script src="../engine/search/ordering.js"></script>
+    <script src="../engine/search/stack.js"></script>
+    <script src="../engine/eval/pst.js"></script>
+    <script src="../engine/eval/pawns.js"></script>
+    <script src="../engine/eval/mobility.js"></script>
+    <script src="../engine/eval/king_safety.js"></script>
+    <script src="../engine/eval/threats.js"></script>
+    <script src="../engine/eval/nnue.js"></script>
+    <script src="../engine/eval/eval.js"></script>
+    <script src="../engine/search/search.js"></script>
+    <script>
+        (function () {
+            const output = document.getElementById('output');
+            const query = new URLSearchParams(window.location.search);
+            const selectedCase = query.get('case') || 'mate6';
+            const MATE_SCORE = window.SEARCH && typeof window.SEARCH.MATE_SCORE === 'number'
+                ? window.SEARCH.MATE_SCORE
+                : 32000;
+            const cases = {
+                mate6: {
+                    name: 'mate6',
+                    fen: 'q7/n2BNp2/5k1P/1p5P/1p2RP2/1K6/8/8 w - - 0 1',
+                    depths: [11, 12, 13],
+                },
+                mate6d11: {
+                    name: 'mate6',
+                    fen: 'q7/n2BNp2/5k1P/1p5P/1p2RP2/1K6/8/8 w - - 0 1',
+                    depths: [11],
+                },
+                mate6d12: {
+                    name: 'mate6',
+                    fen: 'q7/n2BNp2/5k1P/1p5P/1p2RP2/1K6/8/8 w - - 0 1',
+                    depths: [12],
+                },
+                mate6d13: {
+                    name: 'mate6',
+                    fen: 'q7/n2BNp2/5k1P/1p5P/1p2RP2/1K6/8/8 w - - 0 1',
+                    depths: [13],
+                },
+                mate7: {
+                    name: 'mate7',
+                    fen: 'rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11',
+                    depths: [13],
+                },
+                mate7d13: {
+                    name: 'mate7',
+                    fen: 'rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11',
+                    depths: [13],
+                },
+                scanSimpleMates: {
+                    name: 'scanSimpleMates',
+                    scan: true,
+                }
+            };
+            const entry = cases[selectedCase] || cases.mate6;
+
+            function buildFen(pieces, sideToMove) {
+                const board = new Array(64).fill(null);
+                for (const piece of pieces) {
+                    const file = piece.square.charCodeAt(0) - 97;
+                    const rank = Number(piece.square[1]);
+                    const index = (8 - rank) * 8 + file;
+                    board[index] = piece.code;
+                }
+                const rows = [];
+                for (let rank = 0; rank < 8; rank++) {
+                    let row = '';
+                    let empty = 0;
+                    for (let file = 0; file < 8; file++) {
+                        const piece = board[(rank * 8) + file];
+                        if (!piece) {
+                            empty += 1;
+                            continue;
+                        }
+                        if (empty) {
+                            row += String(empty);
+                            empty = 0;
+                        }
+                        row += piece;
+                    }
+                    if (empty) row += String(empty);
+                    rows.push(row);
+                }
+                return rows.join('/') + ' ' + sideToMove + ' - - 0 1';
+            }
+
+            function runCase(entry, depth) {
+                const pos = new window.Position();
+                pos.loadFEN(entry.fen);
+                if (window.TT && typeof window.TT.clear === 'function') {
+                    window.TT.clear();
+                }
+                const started = performance.now();
+                const result = window.SEARCH.go(pos, { depth: depth });
+                const info = typeof window.SEARCH.getInfo === 'function' ? window.SEARCH.getInfo() : null;
+                return {
+                    name: entry.name,
+                    depth: depth,
+                    elapsedMs: Math.round(performance.now() - started),
+                    bestMove: result && result.bestMove ? window.MoveGen.moveToUCI(result.bestMove) : null,
+                    bestScore: result ? result.bestScore : null,
+                    info: info,
+                };
+            }
+
+            function scanSimpleMates() {
+                const rookSquares = ['g1', 'h1', 'g2', 'h2'];
+                const bishopSquares = ['b2', 'c1', 'd2', 'e3'];
+                const kingSquares = ['a1', 'b1'];
+                const results = [];
+                for (const rookSquare of rookSquares) {
+                    for (const bishopSquare of bishopSquares) {
+                        for (const kingSquare of kingSquares) {
+                            const occupied = new Set([rookSquare, bishopSquare, kingSquare, 'g8', 'f8', 'f7', 'g7', 'h7']);
+                            if (occupied.size !== 8) continue;
+                            const fen = buildFen([
+                                { square: kingSquare, code: 'K' },
+                                { square: rookSquare, code: 'R' },
+                                { square: bishopSquare, code: 'B' },
+                                { square: 'g8', code: 'k' },
+                                { square: 'f8', code: 'r' },
+                                { square: 'f7', code: 'p' },
+                                { square: 'g7', code: 'p' },
+                                { square: 'h7', code: 'p' }
+                            ], 'w');
+                            const result = runCase({ name: fen, fen: fen }, 11);
+                            const mateDistance = result.bestScore >= MATE_SCORE - 30
+                                ? Math.floor((MATE_SCORE - result.bestScore + 1) / 2)
+                                : null;
+                            results.push({
+                                fen: fen,
+                                white: { king: kingSquare, rook: rookSquare, bishop: bishopSquare },
+                                bestMove: result.bestMove,
+                                bestScore: result.bestScore,
+                                mateDistance: mateDistance,
+                                pv: result.info && Array.isArray(result.info.pv) ? result.info.pv : [],
+                                elapsedMs: result.elapsedMs,
+                            });
+                        }
+                    }
+                }
+                return results
+                    .filter(item => item.mateDistance !== null)
+                    .sort((left, right) => left.mateDistance - right.mateDistance || right.bestScore - left.bestScore)
+                    .slice(0, 40);
+            }
+
+            const results = [];
+            if (entry.scan) {
+                results.push.apply(results, scanSimpleMates());
+            } else {
+                for (const depth of entry.depths) {
+                    results.push(runCase(entry, depth));
+                }
+            }
+
+            output.textContent = JSON.stringify(results, null, 2);
+            document.title = 'done';
+        })();
+    </script>
+
+</body></html>

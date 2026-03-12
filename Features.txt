@@ -64,7 +64,7 @@ Space Evaluation — Core Engine — — — Daniel — Territory control
 
 Threat Evaluation — Core Engine — — — Daniel — Hanging pieces
 
-NNUE Hooks — Core Engine — — — Daniel — Neural eval integration
+NNUE Integration — Core Engine — — — Daniel — Default network, runtime loading, neural eval blending
 
 Endgame
 Syzygy Tablebase Probe — Core Engine — — — Daniel — Perfect endgames
@@ -433,7 +433,7 @@ Commercial Licensing — Monetization — — — Daniel — Sell engine
 Use these top‑level categories to file every idea you have. Each category has the typical subareas so you don’t miss anything.
 
 Core Engine  
-Movegen; make/unmake; bitboards; BigInt; magic tables; search; TT; evaluation; NNUE hooks; perft; tablebase probe.
+Movegen; make/unmake; bitboards; BigInt; magic tables; search; TT; evaluation; NNUE integration; perft; tablebase probe.
 
 Game Play  
 Board UI; drag/drop; animations; legal highlighting; flip board; coordinates; last move highlight; move confirmation; auto‑promotion rules.
