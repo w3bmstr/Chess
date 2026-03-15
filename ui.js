@@ -10,6 +10,103 @@ const THEMES = [
     'theme-purple','theme-purple-low',
 ];
 
+const PIECE_SET_KEY = 'bbjs-piece-set';
+const PIECE_SETS = {
+    emoji: {
+        // Light Side (White)
+        K: '🤴',
+        Q: '👸🏻',
+        R: '🏰',
+        B: '🧙🏻‍♂️',
+        N: '🦄',
+        A: '🪽',
+        C: '🛡️',
+        P: '🕯️',
+
+        // Dark Side (Black)
+        k: '🤴🏽',
+        q: '👸🏽',
+        r: '🏯',
+        b: '🧙🏽‍♂️',
+        n: '🐴',
+        a: '🪶',
+        c: '⚔️',
+        p: '♟️',
+    },
+    classic: {
+        // Standard Unicode chess set + fallback letters for fairy pieces.
+        K: '♔',
+        Q: '♕',
+        R: '♖',
+        B: '♗',
+        N: '♘',
+        A: 'A',
+        C: 'C',
+        P: '♙',
+        k: '♚',
+        q: '♛',
+        r: '♜',
+        b: '♝',
+        n: '♞',
+        a: 'a',
+        c: 'c',
+        p: '♟',
+    },
+    heroesVsVillains: {
+        K: '🤴', Q: '👸', R: '🏰', B: '😇', N: '🦸', A: '🌟', C: '🛡️', P: '🙂',
+        k: '😈', q: '🧛', r: '🏯', b: '💀', n: '🦹', a: '🌑', c: '⚔️', p: '😤',
+    },
+    animalKingdom: {
+        K: '🦁', Q: '🦋', R: '🐘', B: '🦊', N: '🐎', A: '🦅', C: '🐂', P: '🐰',
+        k: '🐯', q: '🦅', r: '🦏', b: '🦉', n: '🐺', a: '🦇', c: '🦷', p: '🐍',
+    },
+    fantasyRealms: {
+        K: '🤴', Q: '🧚', R: '🏰', B: '🧙', N: '🦄', A: '🪽', C: '🛡️', P: '⭐',
+        k: '💀', q: '🧛', r: '🗼', b: '🧟', n: '🐲', a: '🪶', c: '⚔️', p: '🔮',
+    },
+    celestialVsShadow: {
+        K: '☀️', Q: '🌟', R: '💫', B: '✨', N: '🌈', A: '🌠', C: '🌤️', P: '🌕',
+        k: '🌑', q: '🔥', r: '🌪️', b: '⚡', n: '☄️', a: '🌫️', c: '🌩️', p: '🌚',
+    },
+    galacticSciFi: {
+        K: '👨‍🚀', Q: '🛰️', R: '🚀', B: '🔭', N: '🚁', A: '🌟', C: '🛸', P: '⭐',
+        k: '👾', q: '🛸', r: '☄️', b: '🤖', n: '🦾', a: '💫', c: '⚡', p: '💥',
+    },
+    foodFight: {
+        K: '🍕', Q: '🍔', R: '🍟', B: '🌮', N: '🧁', A: '🍰', C: '🥪', P: '🍩',
+        k: '🥦', q: '🥑', r: '🥕', b: '🍎', n: '🥗', a: '🥝', c: '🫑', p: '🫐',
+    },
+    underTheSea: {
+        K: '🐠', Q: '🐙', R: '🐡', B: '🦀', N: '🐬', A: '🌊', C: '🐚', P: '🐟',
+        k: '🦑', q: '🦈', r: '🐋', b: '🪼', n: '🦭', a: '🌑', c: '🦞', p: '🦐',
+    },
+    spookySeason: {
+        K: '👻', Q: '🕯️', R: '🏚️', B: '🕸️', N: '🦇', A: '🌙', C: '💀', P: '🫧',
+        k: '🎃', q: '🧙‍♀️', r: '🗝️', b: '🧿', n: '🐈‍⬛', a: '🍄', c: '🔮', p: '🌑',
+    },
+    ancientWorlds: {
+        K: '👑', Q: '🌺', R: '🏛️', B: '🔆', N: '🐫', A: '☀️', C: '🛡️', P: '🪬',
+        k: '⚔️', q: '🦅', r: '🏟️', b: '⚡', n: '🐺', a: '🌙', c: '🗡️', p: '🛡️',
+    },
+    sportsRivals: {
+        K: '🏆', Q: '🥇', R: '🏟️', B: '🎯', N: '🏇', A: '🎖️', C: '🏋️', P: '⚽',
+        k: '🎖️', q: '🥈', r: '🏗️', b: '🎳', n: '🤼', a: '🏅', c: '🥊', p: '🏀',
+    },
+    dinoWars: {
+        K: '🦕', Q: '🌿', R: '🏔️', B: '🥚', N: '🦏', A: '🌄', C: '🪨', P: '🌱',
+        k: '🦖', q: '🦷', r: '🌋', b: '🦴', n: '🐊', a: '🌑', c: '🔥', p: '🦂',
+    },
+    piratesVsNavy: {
+        K: '👑', Q: '⚓', R: '🚢', B: '🔭', N: '🐴', A: '🌟', C: '🎖️', P: '🪖',
+        k: '☠️', q: '🦜', r: '🏴‍☠️', b: '🗺️', n: '🦈', a: '🌑', c: '⚔️', p: '🗡️',
+    },
+    ninjaVsSamurai: {
+        K: '🏯', Q: '🌸', R: '⛩️', B: '🎋', N: '🐴', A: '☀️', C: '🛡️', P: '🌺',
+        k: '🥷', q: '🌑', r: '🗡️', b: '💨', n: '🐍', a: '🌙', c: '⚔️', p: '🌑',
+    },
+};
+let currentPieceSet = 'emoji';
+
 function applyTheme(theme) {
     THEMES.forEach(t => document.body.classList.remove(t));
     document.body.classList.add(theme);
@@ -19,6 +116,37 @@ function applyTheme(theme) {
     });
 
     try { localStorage.setItem('bbjs-theme', theme); } catch(e) {}
+
+    // Classic set uses theme-aware glyph mapping, so repaint when theme changes.
+    if (currentPieceSet === 'classic') {
+        if (currentGameState) {
+            paintPosition(currentBoardFEN);
+        }
+        renderTrainingView();
+    }
+}
+
+function getPieceSymbol(fenChar) {
+    const activeSet = PIECE_SETS[currentPieceSet] || PIECE_SETS.emoji;
+    return activeSet[fenChar] || PIECE_SETS.emoji[fenChar] || '';
+}
+
+function applyPieceSet(pieceSet, options) {
+    const normalized = Object.prototype.hasOwnProperty.call(PIECE_SETS, pieceSet) ? pieceSet : 'emoji';
+    currentPieceSet = normalized;
+    document.body.dataset.pieceSet = normalized;
+
+    document.querySelectorAll('[data-piece-set]').forEach(el => {
+        el.classList.toggle('theme-active', el.dataset.pieceSet === normalized);
+    });
+
+    try { localStorage.setItem(PIECE_SET_KEY, normalized); } catch(e) {}
+
+    if (options && options.skipRender) return;
+    if (currentGameState) {
+        paintPosition(currentBoardFEN);
+    }
+    renderTrainingView();
 }
 
 try {
@@ -29,32 +157,16 @@ try {
     applyTheme('theme-classic');
 }
 
-const PIECE_SYMBOLS = {
-  // Light Side (White)
-  K: '👑',
-  Q: '👸🏻',
-  R: '🏰',
-  B: '🧙🏻‍♂️',
-  N: '🦄',
-    A: '🪽',
-    C: '🛡️',
-  P: '🕯️',      // real white pawn
-
-  // Dark Side (Black)
-  k: '🤴🏽',
-  q: '👸🏽',
-  r: '🏯',
-  b: '🧙🏽‍♂️',
-  n: '🐴',
-    a: '🪶',
-    c: '⚔️',
-  p: '♟️',     // real black pawn
-};
-
+try {
+        const savedPieceSet = localStorage.getItem(PIECE_SET_KEY);
+        applyPieceSet(savedPieceSet && PIECE_SETS[savedPieceSet] ? savedPieceSet : 'emoji', { skipRender: true });
+} catch (e) {
+        applyPieceSet('emoji', { skipRender: true });
+}
 
 
 function createPiece(fenChar) {
-    const symbol = PIECE_SYMBOLS[fenChar];
+    const symbol = getPieceSymbol(fenChar);
     if (!symbol) return null;
 
     const piece = document.createElement('div');
@@ -1938,7 +2050,7 @@ function getTrainingChoiceLabel(choice) {
         q: 'queen',
         k: 'king',
     };
-    return (PIECE_SYMBOLS[choice] || '') + ' ' + color + ' ' + (nameMap[String(choice).toLowerCase()] || 'piece');
+    return (getPieceSymbol(choice) || '') + ' ' + color + ' ' + (nameMap[String(choice).toLowerCase()] || 'piece');
 }
 
 function buildTrainingHintMarkup(runtime, drill) {
@@ -1993,7 +2105,7 @@ function renderTrainingBoardMarkup(section, runtime, drill) {
             squares.push([
                 '<button type="button" class="' + classes.join(' ') + '" data-training-square="' + escapeMarkup(square) + '">',
                 '<span class="training-square-coord">' + escapeMarkup(square) + '</span>',
-                '<span class="training-square-piece' + (hidden ? ' training-square-piece-hidden' : '') + '">' + escapeMarkup(hidden ? '' : (PIECE_SYMBOLS[piece] || '')) + '</span>',
+                '<span class="training-square-piece' + (hidden ? ' training-square-piece-hidden' : '') + '">' + escapeMarkup(hidden ? '' : getPieceSymbol(piece)) + '</span>',
                 '</button>',
             ].join(''));
         }
@@ -8591,6 +8703,13 @@ if (!menuButton || !sideDrawer) {
     document.querySelectorAll('[data-theme]').forEach(item => {
         item.addEventListener('click', function () {
             applyTheme(this.dataset.theme);
+            closeDrawer();
+        });
+    });
+
+    document.querySelectorAll('[data-piece-set]').forEach(item => {
+        item.addEventListener('click', function () {
+            applyPieceSet(this.dataset.pieceSet);
             closeDrawer();
         });
     });

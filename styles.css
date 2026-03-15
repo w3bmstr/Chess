@@ -13,7 +13,7 @@
 ============================ */
 :root {
     --nav-height: 52px;
-    --drawer-width: 260px;
+    --drawer-width: 292px;
     --transition-speed: 0.25s;
 
     --sq-light:      #f0d9b5;
@@ -200,10 +200,17 @@ body {
     transition: left var(--transition-speed) ease, background var(--transition-speed);
     padding-bottom: 40px;
     z-index: 999;
+    --drawer-header-height: 56px;
 }
 #side-drawer.open { left: 0; }
 
 .drawer-header {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    min-height: var(--drawer-header-height);
+    display: flex;
+    align-items: center;
     padding: 16px;
     background: var(--nav-bg);
     font-size: 20px;
@@ -284,6 +291,28 @@ body {
 }
 #side-drawer .submenu > ul > li.theme-active::before {
     content: "✓ ";
+}
+
+#side-drawer .submenu > ul > li.piece-set-group {
+    cursor: default;
+    pointer-events: none;
+    position: sticky;
+    top: var(--drawer-header-height);
+    z-index: 2;
+    background: var(--drawer-bg);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.78;
+    font-weight: 700;
+    padding-top: 10px;
+    padding-bottom: 8px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+#side-drawer .submenu > ul > li.piece-set-group:hover {
+    background: transparent;
 }
 
 /* ============================
@@ -2490,6 +2519,13 @@ body {
     position: relative;
 }
 
+/* Classic set pieces follow each theme's nav color. */
+body[data-piece-set="classic"] .piece {
+    color: var(--nav-bg);
+    text-shadow: none;
+    -webkit-text-stroke: 0;
+}
+
 /* ============================
    BOARD SIDEBAR
 ============================ */
@@ -2511,6 +2547,18 @@ body {
    RESPONSIVE — Tablet (≤ 860px)
 ============================ */
 @media (max-width: 860px) {
+    #side-drawer {
+        width: min(340px, 92vw);
+        --drawer-width: min(340px, 92vw);
+        padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    }
+
+    #side-drawer > ul > li,
+    #side-drawer .submenu > ul > li,
+    #side-drawer > ul > li.submenu > span.submenu-label {
+        min-height: 48px;
+    }
+
     .play-layout {
         grid-template-columns: 1fr;
     }
@@ -2652,7 +2700,7 @@ body {
     }
 
     #board-wrapper {
-        width: min(100%, calc(100vw - 20px));
+        width: 100%;
     }
 
     .coords-left {
@@ -2668,7 +2716,7 @@ body {
     #chessboard,
     #board-3d-container,
     .analysis-board {
-        width: min(100%, calc(100vw - 20px));
+        width: 100%;
     }
 
 
@@ -2690,14 +2738,14 @@ body {
 @media (max-width: 380px) {
     #top-nav { font-size: 15px; }
     #side-drawer {
-        width: 88vw;
-        --drawer-width: 88vw;
+        width: 92vw;
+        --drawer-width: 92vw;
     }
     #side-drawer .submenu > ul > li {
         padding-left: 20px;
     }
     #board-wrapper {
-        width: min(100%, calc(100vw - 16px));
+        width: 100%;
     }
 
     .coords-left {

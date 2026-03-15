@@ -23,7 +23,7 @@
 
 			scriptPromise = new Promise((resolve, reject) => {
 				const script = document.createElement('script');
-				script.src = buildSocketScriptUrl(settings.serverUrl);
+				script.src = buildSocketScriptUrl();
 				script.async = true;
 				script.onload = () => {
 					if (typeof global.io === 'function') {
@@ -32,7 +32,7 @@
 					}
 					reject(new Error('Socket.IO client failed to initialize.'));
 				};
-				script.onerror = () => reject(new Error('Unable to load Socket.IO from ' + script.src));
+				script.onerror = () => reject(new Error('Unable to load local Socket.IO client from ' + script.src));
 				document.head.appendChild(script);
 			});
 
@@ -163,12 +163,11 @@
 		};
 	}
 
-	function buildSocketScriptUrl(serverUrl) {
-		try {
-			return new URL('/socket.io/socket.io.js', serverUrl).toString();
-		} catch (error) {
-			return serverUrl.replace(/\/$/, '') + '/socket.io/socket.io.js';
-		}
+	function buildSocketScriptUrl() {
+		const configured = typeof global.CHESS2_SOCKET_CLIENT_SCRIPT_URL === 'string'
+			? global.CHESS2_SOCKET_CLIENT_SCRIPT_URL.trim()
+			: '';
+		return configured || 'vendor/socket.io/socket.io.min.js';
 	}
 
 	global.Chess2SocketBridge = { create };

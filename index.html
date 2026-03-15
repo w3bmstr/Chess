@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>BitboardJS Engine</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="vendor/three.min.js"></script>
 </head>
 
 <body class="theme-classic">  
@@ -63,6 +63,32 @@
                     <li data-theme="theme-night-low">Midnight (Low Contrast)</li>
                     <li data-theme="theme-purple">Royal Purple</li>
                     <li data-theme="theme-purple-low">Royal Purple (Low Contrast)</li>
+                </ul>
+            </li>
+
+            <li class="submenu" id="piece-set-submenu">
+                <span class="submenu-label">♟ Piece Set</span>
+                <ul>
+                    <li class="piece-set-group">Featured Sets</li>
+                    <li data-piece-set="emoji">Emoji (Original)</li>
+                    <li data-piece-set="classic">Classic (Unicode)</li>
+                    <li data-piece-set="heroesVsVillains">Heroes vs Villains</li>
+                    <li data-piece-set="animalKingdom">Animal Kingdom</li>
+                    <li data-piece-set="fantasyRealms">Fantasy Realms</li>
+                    <li data-piece-set="celestialVsShadow">Celestial vs Shadow</li>
+                    <li data-piece-set="galacticSciFi">Galactic Sci-Fi</li>
+
+                    <li class="piece-set-group">Broad Appeal</li>
+                    <li data-piece-set="foodFight">Food Fight</li>
+                    <li data-piece-set="underTheSea">Under the Sea</li>
+                    <li data-piece-set="spookySeason">Spooky Season</li>
+                    <li data-piece-set="ancientWorlds">Ancient Worlds</li>
+                    <li data-piece-set="sportsRivals">Sports Rivals</li>
+
+                    <li class="piece-set-group">Complete Collection</li>
+                    <li data-piece-set="dinoWars">Dino Wars</li>
+                    <li data-piece-set="piratesVsNavy">Pirates vs Navy</li>
+                    <li data-piece-set="ninjaVsSamurai">Ninja vs Samurai</li>
                 </ul>
             </li>
 
@@ -311,6 +337,7 @@
     <script src="app/events.js"></script>
     <script src="config/runtime-config.js"></script>
     <script src="app/network/protocol.js"></script>
+    <script src="vendor/socket.io/socket.io.min.js"></script>
     <script src="app/network/websocket.js"></script>
     <script src="app/network/matchmaking.js"></script>
     <script src="app/notation.js"></script>

@@ -5,4 +5,7 @@
 
     // Public site URL used for shareable private-game links on GitHub Pages.
     global.CHESS2_PUBLIC_BASE_URL = global.CHESS2_PUBLIC_BASE_URL || 'https://w3bmstr.github.io/Chess';
+
+    // Local vendored Socket.IO client script used for offline-capable boot.
+    global.CHESS2_SOCKET_CLIENT_SCRIPT_URL = global.CHESS2_SOCKET_CLIENT_SCRIPT_URL || 'vendor/socket.io/socket.io.min.js';
 })(window);
